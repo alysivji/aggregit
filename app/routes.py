@@ -2,7 +2,7 @@ from flask import jsonify
 
 from app import app
 
-PREFIX = 'v1'
+PREFIX = '/api/v1'
 
 
 @app.route('/')
