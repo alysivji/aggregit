@@ -2,11 +2,11 @@ from flask import jsonify
 
 from app import app
 
-PREFIX = '/api/v1'
+API_PREFIX = '/api/v1'
 
 
-@app.route('/')
-@app.route('/index')
+@app.route(f'{API_PREFIX}/')
+@app.route(f'{API_PREFIX}/index')
 def index():
     posts = [
         {

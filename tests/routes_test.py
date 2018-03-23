@@ -19,15 +19,15 @@ def client(_client):
     Returns
     -------
     dict
-        Deserialized JSON from Request
+        Deserialized JSON from Response
     """
     def _dejsonify(endpoint):
-        result = _client.get('/')
+        result = _client.get(endpoint)
         return json.loads(result.data)
     return _dejsonify
 
 
 def test_index(client):
-    result = client('/')
+    result = client('/api/v1/')
 
     assert isinstance(result, list)
