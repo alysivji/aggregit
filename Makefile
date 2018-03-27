@@ -42,7 +42,7 @@ logs:
 	docker-compose logs -f web
 
 shell: ## Shell into web container
-	docker-compose exec -it web bash
+	docker exec -it $(docker-compose ps -q web) bash
 
 dbshell: ## Shell into postgres process inside db container
 	echo 'Need to add db'

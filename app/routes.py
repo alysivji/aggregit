@@ -8,7 +8,7 @@ from app import app
 import app.adapters.bitbucket as bitbucket
 import app.adapters.github as github
 
-API_PREFIX = '/api/v1'
+API_PREFIX = '/v1/stats'
 
 
 ##################
@@ -140,4 +140,5 @@ def aggregate_stats(args, **kwargs):
 
         agg_stats[key] = intermediate_result
 
+    output['data'] = agg_stats
     return jsonify(output)
