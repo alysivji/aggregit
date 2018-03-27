@@ -1,7 +1,7 @@
 import json
 
 
-def test_github_user_does_not_exist(_client, mocker):
+def test_github_user_does_not_exist(client, mocker):
     """
     Try to find Github user that does not exist, should return 404
     """
@@ -17,7 +17,7 @@ def test_github_user_does_not_exist(_client, mocker):
 
     # Act
     username = "name_does_not_exist"
-    result = _client.get(f'/api/v1/github/{username}')
+    result = client.get(f'/api/v1/github/{username}')
 
     # Assert
     assert result.status_code == 404
@@ -26,7 +26,10 @@ def test_github_user_does_not_exist(_client, mocker):
     assert json_result['error'] == 'Github ID not found'
 
 
-def test_bitbucket_user_does_not_exist(_client, mocker):
+def test_bitbucket_user_does_not_exist(client, mocker):
+    """
+    Try to find BitBucket user that does not exist, should return 404
+    """
     # Arrange
     mock_response = mocker.MagicMock(name='Mock response')
     mock_response.json.return_value = {
@@ -41,10 +44,38 @@ def test_bitbucket_user_does_not_exist(_client, mocker):
 
     # Act
     username = "name_does_not_exist"
-    result = _client.get(f'/api/v1/bitbucket/{username}')
+    result = client.get(f'/api/v1/bitbucket/{username}')
 
     # Assert
     assert result.status_code == 404
 
     json_result = json.loads(result.data)
     assert json_result['error'] == 'BitBucket ID not found'
+
+
+def test_combined_missing_id(client):
+    """
+    Try to get combined stats with missing parameters.
+    Webargs should catch and return 422
+    """
+    # Missing github id
+    # Arrange
+    username = "name_does_not_exist"
+
+    # Act
+    result = client.get(f'/api/v1/combined?bitbucket={username}')
+
+    # Assert
+    result.status_code == 422
+
+    # ----
+
+    # Missing BitBucket id
+    # Arrange
+    username = "name_does_not_exist"
+
+    # Act
+    result = client.get(f'/api/v1/combined?github={username}')
+
+    # Assert
+    result.status_code == 422
