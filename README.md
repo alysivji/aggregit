@@ -2,10 +2,6 @@
 
 This project will aggregate statistics from github and bitbucket.
 
-## API Documentation
-
-[Detailed documentation](docs/api/).
-
 ## Setup Instructions
 
 Requires Docker, Docker-Compose, Make/CMake (I <3 `Makefile`).
@@ -18,13 +14,17 @@ Requires Docker, Docker-Compose, Make/CMake (I <3 `Makefile`).
 
 App is live at `http://localhost:5000`
 
-### API Endpoints
+**API Endpoints**
 
 ```console
 * GET http://localhost:5000/v1/stats/github/:github_id
 * GET http://localhost:5000/v1/stats/bitbucket/:bitbucket_id
 * GET http://localhost:5000/v1/stats/combined?github=github_id&bitbucket=bitbucket_id
 ```
+
+## API Documentation
+
+[Detailed documentation](docs/api/).
 
 ## Notes
 
