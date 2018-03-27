@@ -36,6 +36,7 @@ def _bitbucket_api_get(endpoint: str):
     Only function that uses requests to hit the API
     """
     r = requests.get(endpoint, headers=_HEADERS)
+    # TODO: would be good to have r.raise_for_status() in production
     return Response(r.json())
 
 
@@ -147,7 +148,7 @@ def repo_stats(username: str):
 
     size_of_account = sum([repo['size'] for repo in all_repos])  # kilobytes
 
-    languages_used = [repo['language']
+    languages_used = [repo['language'].lower()
                       for repo in all_repos
                       if repo['language'] != '']
     languages_used = list(set(languages_used))

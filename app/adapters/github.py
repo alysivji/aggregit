@@ -154,6 +154,7 @@ def fetch_all_languages(languages_endpoints: List[str]):
         r = requests.get(endpoint, headers=_HEADERS)
         repo_languages.extend(list(r.json().keys()))
 
+    repo_languages = [language.lower() for language in repo_languages]
     return list(set(repo_languages))
 
 
