@@ -8,7 +8,7 @@ BitBucket public API has generous rate limits so do not need keys
 """
 
 import logging
-from typing import List
+from typing import Any, Dict, List, NamedTuple
 
 import requests
 
@@ -20,6 +20,13 @@ _HEADERS = {
 }
 
 
+class Response(NamedTuple):
+    """
+    Holds required information from response
+    """
+    json: Dict[str, Any]
+
+
 ##################
 # Helper Functions
 ##################
@@ -29,7 +36,7 @@ def _bitbucket_api_get(endpoint: str):
     Only function that uses requests to hit the API
     """
     r = requests.get(endpoint, headers=_HEADERS)
-    return r.json()
+    return Response(r.json())
 
 
 def _get_all_items(endpoint: str):
@@ -40,12 +47,12 @@ def _get_all_items(endpoint: str):
 
     url = endpoint  # first page
     while True:
-        r_json = _bitbucket_api_get(url)
+        resp = _bitbucket_api_get(url)
 
-        all_items.extend(r_json['values'])
+        all_items.extend(resp.json['values'])
 
-        if 'next' in r_json:
-            url = r_json['next']
+        if 'next' in resp.json:
+            url = resp.json['next']
         else:
             return all_items
 
@@ -54,8 +61,8 @@ def _get_size(endpoint: str):
     """
     For endpoints that give results size in metadata as part of a JSON reponse
     """
-    r_json = _bitbucket_api_get(endpoint)
-    return r_json['size']
+    resp = _bitbucket_api_get(endpoint)
+    return resp.json['size']
 
 
 ##########################
@@ -70,13 +77,13 @@ def fetch_user_data(username):
     Username can be either a team account or an individual account
     """
     user_data_endpoint = f'https://api.bitbucket.org/2.0/users/{username}'
-    result_json = _bitbucket_api_get(user_data_endpoint)
+    resp = _bitbucket_api_get(user_data_endpoint)
 
-    if result_json['type'] == 'error':
+    if resp.json['type'] == 'error':
         team_data_endpoint = f'https://api.bitbucket.org/2.0/teams/{username}'
-        result_json = _bitbucket_api_get(team_data_endpoint)
+        resp = _bitbucket_api_get(team_data_endpoint)
 
-    return result_json
+    return resp.json
 
 
 def fetch_num_watchers(endpoints: List[str]):
