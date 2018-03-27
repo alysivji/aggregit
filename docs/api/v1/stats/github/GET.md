@@ -1,4 +1,4 @@
-# Get All Movies
+# Get Github Stats
 
 Get stats for user from Github.
 

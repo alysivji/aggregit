@@ -1,4 +1,4 @@
-# Get All Movies
+# Get BitBucket Stats
 
 Get stats for user from BitBucket.
 
