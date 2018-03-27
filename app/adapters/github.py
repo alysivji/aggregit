@@ -1,7 +1,12 @@
 """
 Fetch stats from Github API
+
+Thought about using links from initial response, but Github API lists optional
+values in the links which require parsing / formatting so I ended up hardcoding
+the endpoint URLs
 """
 
+import logging
 from typing import Any, Dict, List, NamedTuple
 import urllib
 
@@ -10,6 +15,8 @@ import requests
 from app import app
 
 # Configuration
+logger = logging.getLogger(__name__)
+
 _GITHUB_TOKEN = app.config['GITHUB_TOKEN']
 _GITHUB_API_URL = 'https://api.github.com'
 _HEADERS = {
@@ -30,7 +37,7 @@ class Response(NamedTuple):
 # Helper Functions
 ##################
 
-def _extract_page_from_link_header(link):
+def _extract_page_from_link_header(link: str):
     """
     Helper function to extract page
     """
@@ -45,7 +52,7 @@ _link = '<https://api.github.com/user/4369343/repos?type=all&page=2>; rel="last"
 assert _extract_page_from_link_header(_link) == 2
 
 
-def github_api_get(endpoint, *, params={}):
+def _github_api_get(endpoint: str, *, params={}):
     """
     Given GitHub endpoint, returns JSON response and headers
     """
@@ -59,14 +66,14 @@ def github_api_get(endpoint, *, params={}):
     return Response(r.json(), r.headers)
 
 
-def get_all_items(endpoint):
+def _get_all_items(endpoint: str):
     """
     Handle Github API pagination
     """
     all_items = []
 
     # get items from first page
-    resp = github_api_get(endpoint, params={'type': 'all', 'page': 1})
+    resp = _github_api_get(endpoint, params={'type': 'all', 'page': 1})
     r_json = resp.json
     r_headers = resp.headers
     all_items.extend(r_json)
@@ -78,8 +85,8 @@ def get_all_items(endpoint):
                 last_page = _extract_page_from_link_header(link)
 
         for page in range(2, last_page + 1):
-            r_json, _ = github_api_get(endpoint,
-                                       params={'type': 'all', 'page': page})
+            r_json, _ = _github_api_get(endpoint,
+                                        params={'type': 'all', 'page': page})
 
             all_items.extend(r_json)
 
@@ -90,33 +97,37 @@ def get_all_items(endpoint):
 # Fetch from Github API
 #######################
 
-# TODO: Can refactor into one function, but wanted to be explicit
-# discuss during Code Review
+# TODO: Refactor so only ONE function uses requests module (See bitbucket.py)
+# Would make the program exponentially easier to test
 
 # TODO: Use async requests to speed up response time
 # discuss "Make it work. Make it right. Make it fast" during Code Review
 
+def fetch_user_data(username):
+    """
+    Pull user data; not paginated
+    """
+    r = requests.get(f'{_GITHUB_API_URL}/users/{username}',
+                     headers=_HEADERS)
+    return r.json()
+
+
 def fetch_all_repos(username):
     all_repos_endpoint = f'users/{username}/repos'
-    return get_all_items(all_repos_endpoint)
-
-
-def fetch_all_followers(username):
-    all_followers_endpoint = f'users/{username}/followers'
-    return get_all_items(all_followers_endpoint)
+    return _get_all_items(all_repos_endpoint)
 
 
 def fetch_all_watchers(username):
     all_watchers_endpoint = f'users/{username}/subscriptions'
-    return get_all_items(all_watchers_endpoint)
+    return _get_all_items(all_watchers_endpoint)
 
 
 def fetch_all_starred_repos(username):
     starred_repos_endpoint = f'users/{username}/starred'
-    return get_all_items(starred_repos_endpoint)
+    return _get_all_items(starred_repos_endpoint)
 
 
-def fetch_all_open_issues(username):
+def fetch_num_open_issues(username):
     q = f'is:open+author:{username}+archived:false'
     r = requests.get(f'{_GITHUB_API_URL}/search/issues?q={q}')
 
@@ -128,7 +139,7 @@ def fetch_all_commits(username, repos: List[str]):
     all_commits = []
     for repo in repos:
         repo_commits_endpoint = f'repos/{username}/{repo}/commits'
-        repo_commits = get_all_items(repo_commits_endpoint)
+        repo_commits = _get_all_items(repo_commits_endpoint)
         all_commits.extend(repo_commits)
 
     return all_commits
@@ -166,34 +177,40 @@ def fetch_all_topics(repo_endpoints: List[str]):
 # Main Functionality
 ####################
 
-# TODO: Refactor stats into Class where each attribute abstracts a fetch
-# to the API for the specific site we want to poll
-# Would be easy to refactor if I took the time to collect sample data for tests
+# TODO: Could refactor Stats into Class. Create GithubStats subclass
 
 def repo_stats(username: str):
+    user = fetch_user_data(username)
+
+    if 'message' in user:
+        if user['message'] == 'Not Found':
+            logging.error('Github account not found')
+            return {'error': 'Github account not found'}
+
+        # Unknown error so log
+        logging.error(f"{user['message']}")
+        return None
+
+    num_followers = user['followers']
+    num_following = user['following']
+
     all_repos = fetch_all_repos(username)
 
-    # User created repos
+    # Calculate stats based on data fetched from all_repos
     original = [repo['name'] for repo in all_repos if repo['fork'] is False]
     num_original = len(original)
 
-    # Forked repos
     forked = [repo['name'] for repo in all_repos if repo['fork'] is True]
     num_forked = len(forked)
 
     stars_recieved = sum([repo['stargazers_count'] for repo in all_repos])
-    size_of_account = sum([repo['size'] for repo in all_repos])
+    size_of_account = sum([repo['size'] for repo in all_repos])  # kilobytes
 
-    # Open Issues
-    num_open_issues = fetch_all_open_issues(username)
+    # Fetch data from other endpoints and calculate stats
+    num_open_issues = fetch_num_open_issues(username)
 
-    # commits
     all_commits_in_original_repos = fetch_all_commits(username, original)
     num_commits = len(all_commits_in_original_repos)
-
-    # Fetch data from other endpoints
-    followers = fetch_all_followers(username)
-    num_followers = len(followers)
 
     watchers = fetch_all_watchers(username)
     num_watchers = len(watchers)
@@ -207,18 +224,19 @@ def repo_stats(username: str):
     repo_endpoints = [repo['url'] for repo in all_repos]
     repo_topics = fetch_all_topics(repo_endpoints)
 
+    # Gather stats to send back
     stats = {
         'total_original_repos': num_original,
         'total_forked_repos': num_forked,
         'total_watcher_count': num_watchers,
         'total_follower_count': num_followers,
+        'total_following_count': num_following,
         'stars_recieved': stars_recieved,
         'stars_given': num_stars_given,
         'total_open_issues': num_open_issues,
         'total_commits_to_non_forked': num_commits,
         'total_account_size': size_of_account,
         'languages_used': languages_used,
-        'repo_topics': repo_topics
+        'repo_topics': repo_topics,
     }
-
     return stats
