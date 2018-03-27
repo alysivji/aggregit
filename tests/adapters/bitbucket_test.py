@@ -9,6 +9,10 @@ import app.adapters.bitbucket as bitbucket
 CWD = os.path.dirname(__file__)
 
 
+# TODO monkey-patching versus dependency injection. I like the Java mindset of
+# DI, but monkey-patching is quick and dirty for coding assessments
+# Discuss further in code review
+
 def test_fetch_user_data(mocker, json_loader):
     """
     Test getting data for team accounts

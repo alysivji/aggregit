@@ -1,4 +1,4 @@
-Flask
-gunicorn
-requests
-webargs
+Flask==0.12.2
+gunicorn==19.7.1
+requests==2.18.4
+webargs==2.0.0

@@ -17,7 +17,7 @@ def test_github_user_does_not_exist(client, mocker):
 
     # Act
     username = "name_does_not_exist"
-    result = client.get(f'/api/v1/github/{username}')
+    result = client.get(f'/v1/stats/github/{username}')
 
     # Assert
     assert result.status_code == 404
@@ -44,7 +44,7 @@ def test_bitbucket_user_does_not_exist(client, mocker):
 
     # Act
     username = "name_does_not_exist"
-    result = client.get(f'/api/v1/bitbucket/{username}')
+    result = client.get(f'/v1/stats/bitbucket/{username}')
 
     # Assert
     assert result.status_code == 404
@@ -63,7 +63,7 @@ def test_combined_missing_id(client):
     username = "name_does_not_exist"
 
     # Act
-    result = client.get(f'/api/v1/combined?bitbucket={username}')
+    result = client.get(f'/api/v1/stats/combined?bitbucket={username}')
 
     # Assert
     result.status_code == 422
@@ -75,7 +75,7 @@ def test_combined_missing_id(client):
     username = "name_does_not_exist"
 
     # Act
-    result = client.get(f'/api/v1/combined?github={username}')
+    result = client.get(f'/api/v1/stats/combined?github={username}')
 
     # Assert
     result.status_code == 422
