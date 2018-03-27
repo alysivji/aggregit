@@ -44,7 +44,8 @@ App is live at `http://localhost:5000`
 
 ### Continuous Integration
 
-* Hooked this up to my [drone](https://drone.io) instance
+* Hooked this up to a [drone](https://drone.io) instance running on my VPS
+* PRs have CI integration. [Example](https://github.com/alysivji/aggregit/pull/3)
 
 ### Services
 
