@@ -35,6 +35,7 @@ App is live at `http://localhost:5000`
 
 ### Tests
 
+* `make test` to run
 * Wrote a few tests
 * Would write more tests following [this example](https://github.com/alysivji/aggregit/blob/master/tests/adapters/bitbucket_test.py#L16)
     * Mock requests
