@@ -1,4 +1,4 @@
-# Get All Movies
+# Get Combined Stats
 
 Get combined stats from Github and BitBucket
 

@@ -18,4 +18,4 @@ Resource will go to cloud-based version control repositories and compute statist
 
 #### `/v1/stats/combined`
 
-* **[POST `/v1/api/stats/combined`](v1/stats/combined/GET.md)**
+* **[GET `/v1/api/stats/combined`](v1/stats/combined/GET.md)**
