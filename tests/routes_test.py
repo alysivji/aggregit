@@ -63,7 +63,7 @@ def test_combined_missing_id(client):
     username = "name_does_not_exist"
 
     # Act
-    result = client.get(f'/api/v1/stats/combined?bitbucket={username}')
+    result = client.get(f'/v1/stats/combined?bitbucket={username}')
 
     # Assert
     result.status_code == 422
@@ -75,7 +75,7 @@ def test_combined_missing_id(client):
     username = "name_does_not_exist"
 
     # Act
-    result = client.get(f'/api/v1/stats/combined?github={username}')
+    result = client.get(f'/v1/stats/combined?github={username}')
 
     # Assert
     result.status_code == 422
