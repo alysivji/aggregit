@@ -4,7 +4,7 @@ This project will aggregate statistics from github and bitbucket.
 
 ## Setup Instructions
 
-Requires Docker, Docker-Compose, Make/CMake (I <3 `Makefile`).
+Requires Docker, Docker-Compose, Make.
 
 1. Clone repo
 1. Create [Github Personal Access Token](https://github.com/settings/tokens)
