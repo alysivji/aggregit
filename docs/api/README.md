@@ -10,12 +10,12 @@ Resource will go to cloud-based version control repositories and compute statist
 
 #### `/v1/stats/github/:github_id`
 
-* **[GET `/v1/api/stats/github/:github_id`](v1/stats/github/GET.md)**
+* **[GET `/v1/stats/github/:github_id`](v1/stats/github/GET.md)**
 
 #### `/v1/stats/bitbucket/:bitbucket_id`
 
-* **[GET `/v1/api/stats/bitbucket/:bitbucket_id`](v1/stats/bitbucket/GET.md)**
+* **[GET `/v1/stats/bitbucket/:bitbucket_id`](v1/stats/bitbucket/GET.md)**
 
 #### `/v1/stats/combined`
 
-* **[GET `/v1/api/stats/combined`](v1/stats/combined/GET.md)**
+* **[GET `/v1/stats/combined`](v1/stats/combined/GET.md)**
